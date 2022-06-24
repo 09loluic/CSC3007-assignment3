@@ -12,35 +12,54 @@
 <script>
 
 let width = 1000, height = 600;
-
 let svg = d3.select("svg")
     .attr("viewBox", "0 0 " + width + " " + height)
 
-// Load external datahttps://raw.githubusercontent.com/09loluic/CSC3007-assignment3/main/population.csv
-Promise.all([d3.json("https://chi-loong.github.io/CSC3007/assignments/sgmap.json"), d3.csv("https://chi-loong.github.io/CSC3007/assignments/population2021.csv")]).then(data => {
+// Load external data https://raw.githubusercontent.com/09loluic/CSC3007-assignment3/main/population.csv
+Promise.all([d3.json("sgmap.json"), d3.csv("population2021.csv")]).then(data => {
 
 console.log(data[0]);
 console.log(data[1]);
 
 
-function getValue(id){
-var returnValue = 0;
+function getValue(id, ids){
+var returnValue = 0; 
+
+
+
 $.each(data[1], function(key,value) {
     
-  // console.log("value: " + JSON.stringify(value) )
+  // console.log("value: " + JSON.stringify(value))
+  returnValue = -1; 
+
+  if(value["Planning Area"].toUpperCase().trim() == ids.toUpperCase().trim()){
+
+      if(value["Subzone"].toUpperCase().trim() == id.toUpperCase().trim() ){
   
-if(value["Planning Area"].toUpperCase().trim() == id.toUpperCase().trim()){
-  console.log("Planning: "  +  value["Planning Area"].toUpperCase().trim()  + " id: " +id.toUpperCase().trim())
-if( $.isNumeric(value["Population"] ) )
-{
-  console.log(value["Population"] + " is a number")
-   returnValue += parseInt(value["Population"] );
-}
-}
+        if($.isNumeric(value["Population"] ) )
+        {
+          returnValue = parseInt(value["Population"] );
+          return false;
+        }
+        else{
+
+          returnValue = -1; 
+          return false;
+        }
+      }
+      else if(id.toUpperCase().trim() == ids.toUpperCase().trim() ){ 
+        
+        returnValue = -1; 
+          return false;
+      }
+
+  
+  }  
+
 }); 
 
- console.log(" id: " +id.toUpperCase()  +  " Value:" + returnValue)
-return returnValue;
+
+ return returnValue;
 
 }
 // Map and projection
@@ -51,8 +70,9 @@ var projection = d3.geoMercator()
 let geopath = d3.geoPath().projection(projection);
 
 var colorScale = d3.scaleThreshold()
-  .domain([8000, 16000, 24000, 32000,40000, 48000,56000, 64000])
-  .range(d3.schemeBlues[9]);
+  .domain([20000, 40000, 60000, 80000,100000, 120000])
+  .range(["#f7fbff","#deebf7","#9ecae1","#6baed6","#4292c6","#08306b"])
+
 
 svg.append("g")
     .attr("id", "districts")
@@ -63,8 +83,14 @@ svg.append("g")
     .attr("d", geopath)
   	.attr("fill", function (d) {
 
-        d.total = getValue(d.properties["Planning Area Name"]) || 0;
+        d.total = getValue(d.properties["Subzone Name"],d.properties["Planning Area Name"]) || 0;
+        if(d.total == -1){
+          return "black";
+        }
+        else{
+
         return colorScale(d.total);
+        }
       });
 
 })
