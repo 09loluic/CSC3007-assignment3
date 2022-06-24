@@ -16,7 +16,7 @@ let svg = d3.select("svg")
     .attr("viewBox", "0 0 " + width + " " + height)
 
 // Load external data https://raw.githubusercontent.com/09loluic/CSC3007-assignment3/main/population.csv
-Promise.all([d3.json("sgmap.json"), d3.csv("population2021.csv")]).then(data => {
+Promise.all([d3.json("https://chi-loong.github.io/CSC3007/assignments/sgmap.json"), d3.csv("https://chi-loong.github.io/CSC3007/assignments/population2021.csv")]).then(data => {
 
 console.log(data[0]);
 console.log(data[1]);
